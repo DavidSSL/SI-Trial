@@ -24,28 +24,9 @@ namespace SI_Trial
     {
         public static void Start(Container container, RegionEndpoint bucketRegion)
         {
-            container.Register<S3FileNamesGetter>();
+            container.Register<IGetFileNames, S3FileNamesGetter>();
             container.Options.EnableAutoVerification = false;
 
-            var client1 = new AmazonS3Client( "apiKey1", "secretKey1", bucketRegion);
-            var client2 = new AmazonS3Client( "apiKey2", "secretKey2", bucketRegion);
-
-            var s3ClientsQueryors = new Dictionary<S3ClientType, IAmAnS3ClientQueryor>
-            {
-                {
-                    S3ClientType.Discriminator1, new S3Queryor(client1)
-                },
-                {
-                    S3ClientType.Discriminator2, new S3Queryor(client2)
-                }
-            };
-
-            container.Collection.Register<IAmazonS3>(client1, client2);
-
-            container.RegisterInstance<IDictionary<S3ClientType, IAmAnS3ClientQueryor>>(s3ClientsQueryors);
-
-            container.RegisterInstance<IGetFileNames>(new S3FileNamesGetter(s3ClientsQueryors));
-            container.Register<IAmAnS3ClientQueryor, S3Queryor>();
             container.Verify();
         }
     } 
